@@ -1,3 +1,3 @@
 import net_scan
 
-net_scan.find_peers()
+ip_arr, mac_arr = net_scan.scan_network()

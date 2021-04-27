@@ -5,7 +5,7 @@ from scapy.all import srp, ARP, Ether
 # app. The find_peers function works by returning the IP address of any
 # computer running our app.
 
-def find_peers():
+def scan_network():
 
 	# The first step in this process is to get a list of the devices on
 	# the network.
@@ -25,6 +25,10 @@ def find_peers():
 
 	print("IP" + " "*18+"MAC")
 
+	ip_arr = []
+	mac_arr = []
 	for sent, received in answered:
-		
-		print("{:16}    {}".format(received.psrc, received.hwsrc))
+		ip_arr.append(received.psrc)
+		mac_arr.append(received.hwsrc)
+
+	return ip_arr, mac_arr

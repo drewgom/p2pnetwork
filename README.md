@@ -6,7 +6,8 @@ A peer-to-peer network that I created for my Distributed Systems class.
 ## Design
 
 ## Tools
-- I used the package [Scapy](https://scapy.net) to write an algorithm that can detect what other computers on my local network are going to be peers. 
+- I used the package [Scapy](https://scapy.net) to write an algorithm that can detect what other devices are on my network
+- I used BSD sockets to establish connections between nodes because they are implemented in [Python's socket library](https://docs.python.org/3/library/socket.html), and so I figured it would be a library that had a lot of documentation already
 
 
 ## Resources Used
