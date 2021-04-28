@@ -36,4 +36,5 @@ def start_receiver():
 
 def start_sender(sender_ip):
 	sender_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	sender_socket.connect((sender_ip, SEND_PORT))
+	sender_socket.connect((sender_ip, REC_PORT))
+	print("Connected")

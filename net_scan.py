@@ -43,8 +43,9 @@ def scan_ports(ip_arr, port):
 		# Here, we used connect_ex because it is a nonblocking call that simply tests to see
 		# if the connection can be made. That is perfect for this case.
 		local_scanner_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		local_scanner_socket.settimeout(1)
+		local_scanner_socket.settimeout(2)
 		attempt = local_scanner_socket.connect_ex((ip_add, port))
+		print("attempt on " + str(ip_add) + ": attempt code is " + str(attempt))		
 		if attempt == 0:
 			ips_with_open_port.append(ip_add)
 
