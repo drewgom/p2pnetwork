@@ -20,12 +20,21 @@ SEND_PORT = 2194
 REC_PORT = 2195
 
 # The line of code below allows us to get our local IP address
-CURRENT_NODE_IP = socket.gethostbyname(socket.getfqdn())
+CURRENT_NODE_IP = ""
 
 
-def start_receiver():
+def start_receiver(operating_system):
 	# Here we create a socket that will use IPv4 for network communcation, and TCP for transport
 	# layer communication
+	if operating_system == "0":
+		# If this option is set, then we are using macOS
+		CURRENT_NODE_IP = socket.gethostbyname(socket.getfqdn())
+	elif operating_system == "1":
+		# If this option is set, then we are using a Raspbian machine
+		CURRENT_NODE_IP = socket.gethostbyname(socket.gethostname() + ".local")
+	else:
+		print("Could not resolve OS")
+		exit()
 	reciever_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	reciever_socket.bind((CURRENT_NODE_IP, REC_PORT))
 	reciever_socket.listen()

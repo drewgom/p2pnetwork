@@ -11,7 +11,7 @@ if sys.argv[1] == 'sender':
 	for res in result:
 		p2p_conn.start_sender(res)
 elif sys.argv[1] == 'receiver':
-	p2p_conn.start_receiver()
+	p2p_conn.start_receiver(sys.argv[2])
 elif sys.argv[1] == 'scan':
 	ip_arr = net_scan.scan_network()
 	ip_arr.sort()
