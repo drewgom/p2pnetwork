@@ -20,7 +20,7 @@ SEND_PORT = 2194
 REC_PORT = 2195
 
 # The line of code below allows us to get our local IP address
-CURRENT_NODE_IP = socket.gethostbyname(socket.gethostname())
+CURRENT_NODE_IP = socket.gethostbyname(socket.getfqdn())
 
 
 def start_receiver():

@@ -22,7 +22,7 @@ def scan_network():
 	# find the MAC address for all the devices on our network (which we can
 	# access via the IPs 192.168.1.1 - 192.168.1.255). This function call
 	# simply does that.
-	answered = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst="192.168.1.0/24"), timeout=3)[0]
+	answered = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst="192.168.1.0/24"), timeout=10)[0]
 
 	ip_arr = []
 
