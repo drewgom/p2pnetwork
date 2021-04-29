@@ -5,6 +5,7 @@ import sys
 
 if sys.argv[1] == 'sender':
 	ip_arr = net_scan.scan_network()
+	ip_arr.sort()
 	print("starting port scan")
 	result = net_scan.scan_ports(ip_arr, 2195)
 	print("port scan completed")
