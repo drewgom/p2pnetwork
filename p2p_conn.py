@@ -1,4 +1,5 @@
 import socket
+import threading
 
 # Although this connection is peer to peer, I found it would be easiest to have
 # two streams of data connected between any two nodes: one data stream that sends data out
@@ -41,9 +42,29 @@ def start_receiver(operating_system):
 	print("Started - IP = " + str(CURRENT_NODE_IP) + ", PORT = " + str(REC_PORT))
 	while True:
 		connection, address = reciever_socket.accept()
+		# Here, we start a thread that will receive all the messages for the communication
+		# between the two threads
 
 
 def start_sender(sender_ip):
 	sender_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sender_socket.connect((sender_ip, REC_PORT))
+	# Here, we start a thread that will send all the messages for the communication
+	# between the two threads
 	print("Connected")
+
+
+'''
+def package_change():
+	# Here, we simply package up the changed file in to the correct format to
+	# be sent over the network
+
+
+def unpackage_change():
+
+
+def recieve_change():
+
+
+def send_change():
+'''
