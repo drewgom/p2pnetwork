@@ -2,6 +2,7 @@ import socket
 import threading
 import queue_manager
 import os
+import time
 
 # Although this connection is peer to peer, I found it would be easiest to have
 # two streams of data connected between any two nodes: one data stream that sends data out
@@ -19,7 +20,7 @@ import os
 # All "sender" sockets for a node are bound to port 2194, and all "receiver" sockets for a node
 # are bound to port 2195. These were simply random selections that were not registered with the IANA.
 
-SEND_PORT = 2194
+DISCOVERY_PORT = 2194
 REC_PORT = 2195
 
 CURRENT_NODE_IP = ""
@@ -31,13 +32,34 @@ HEADER_FILE_SIZE = 16
 
 HEADER_SIZE = HEADER_FILE_NAME_SIZE + HEADER_UPDATE_TYPE_SIZE + HEADER_UPDATE_TIMESTAMP + HEADER_FILE_SIZE
 
+def disovery_receiver(operating_system):
+	# Here we create a socket that will use IPv4 for network communcation, and TCP for transport
+	# layer communication
+	if operating_system == "0":
+		# If this option is set, then we are using macOS
+		# CURRENT_NODE_IP = socket.gethostbyname(socket.getfqdn())
+		CURRENT_NODE_IP = "192.168.1.7"
+	elif operating_system == "1":
+		# If this option is set, then we are using a Raspbian machine
+		CURRENT_NODE_IP = socket.gethostbyname(socket.gethostname() + ".local")
+	else:
+		print("Could not resolve OS")
+		exit()
+	discovery_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	discovery_socket.bind((CURRENT_NODE_IP, DISCOVERY_PORT))
+	discovery_socket.listen()
+	print("Started - IP = " + str(CURRENT_NODE_IP) + ", PORT = " + str(DISCOVERY_PORT))
+	while True:
+		connection, address = discovery_socket.accept()
+	
 
 def start_receiver(operating_system):
 	# Here we create a socket that will use IPv4 for network communcation, and TCP for transport
 	# layer communication
 	if operating_system == "0":
 		# If this option is set, then we are using macOS
-		CURRENT_NODE_IP = socket.gethostbyname(socket.getfqdn())
+		# CURRENT_NODE_IP = socket.gethostbyname(socket.getfqdn())
+		CURRENT_NODE_IP = "192.168.1.7"
 	elif operating_system == "1":
 		# If this option is set, then we are using a Raspbian machine
 		CURRENT_NODE_IP = socket.gethostbyname(socket.gethostname() + ".local")
@@ -48,10 +70,13 @@ def start_receiver(operating_system):
 	reciever_socket.bind((CURRENT_NODE_IP, REC_PORT))
 	reciever_socket.listen()
 	print("Started - IP = " + str(CURRENT_NODE_IP) + ", PORT = " + str(REC_PORT))
+	request_executer_thread = threading.Thread(target=queue_manager.request_executer, args=())
+	request_executer_thread.start()
 	while True:
 		connection, address = reciever_socket.accept()
 		# Here, we start a thread that will receive all the messages for the communication
 		# between the two threads
+		recieve_change(connection, address)
 
 
 def start_sender(sender_ip):
@@ -59,10 +84,11 @@ def start_sender(sender_ip):
 	sender_socket.connect((sender_ip, REC_PORT))
 	# Here, we start a thread that will send all the messages for the communication
 	# between the two threads
-	print("Connected")
+	send_change(sender_socket)
 
 
 def recieve_change(connection, address):
+	print("in recieve_change")
 	currently_connected = True
 	while currently_connected:
 		# At the start of any message we receive is the header. The header will contain:
@@ -73,15 +99,22 @@ def recieve_change(connection, address):
 		# After the header, we will simply receive the contents of the file
 		header = connection.recv(HEADER_SIZE).decode("utf8")
 		if header:
+			print("In header")
 			# First we store the header information
 			file_name = header[:64]
+			print("file name is " + file_name)
 			update_type = header[64]
 			update_timestamp = header[65:97]
 			file_size = header[97:]
 			# Once we have the header info, we recieve the file data, and queue
 			# it to be decoded
-			file_contents = connection.recv(file_size).decode("utf8")
-			change_idenifier = queue_manager.get_external_change_idenifier(file_name, update_type, update_timestamp)
+			file_contents = connection.recv(int(file_size))
+			change_identifier = queue_manager.get_external_change_identifier(file_name, update_type, update_timestamp)
+			print(file_name)
+			print(update_type)
+			print(update_timestamp)
+			print(file_size)
+			queue_manager.received_queue.append((change_identifier, file_contents))
 
 
 	connection.close()
@@ -90,48 +123,56 @@ def send_change(sending_socket):
 	# If a sender runs and the top of the queue is still the previous message that was sent by this sender,
 	# then we know that we should essentially busy wait
 	previous_message = None
-
+	queue_manager.to_be_sent_queue.append(('text1.txt', 'new', 1234.5678))
 	queue_manager.register_sender()
 
 	currently_connected = True
 	while currently_connected:
 		# If the queue is empty or if we already sent the message that's at the top of the queue, we simply wait
 		while len(queue_manager.to_be_sent_queue) == 0 or previous_message == queue_manager.to_be_sent_queue[0]:
-			pass
+			time.sleep(10)
 
 		# Once we have finished sending the message, we'll signal that we are done to the semaphore.
-		change_idenifier = queue_manager.to_be_sent_queue[0]
+		change_identifier = queue_manager.to_be_sent_queue[0]
 		# First we add in the header
-		header = change_idenifier[0]
-		header += b" " * (HEADER_FILE_NAME_SIZE - len(header))
+		header = change_identifier[0].encode("utf8")
+		header += b' ' * (HEADER_FILE_NAME_SIZE - len(header))
 		# Next, we add in the single value for the status
-		header += queue_manager.get_status_code(change_identifier[1])
+		header += queue_manager.get_status_code(change_identifier[1]).encode("utf8")
 		# Currently the line below should do nothing, but it is still good to have incase the size of this were to change
-		header += b" " * (HEADER_FILE_NAME_SIZE+HEADER_UPDATE_TYPE_SIZE - len(header))
+		header += b' ' * (HEADER_FILE_NAME_SIZE+HEADER_UPDATE_TYPE_SIZE - len(header))
 		# After that, we add the timestamp
-		header += str(change_identifier[2])
-		header += b" " * (HEADER_FILE_NAME_SIZE+HEADER_UPDATE_TYPE_SIZE+HEADER_UPDATE_TIMESTAMP - len(header))
+		header += str(change_identifier[2]).encode("utf8")
+		header += b' ' * (HEADER_FILE_NAME_SIZE+HEADER_UPDATE_TYPE_SIZE+HEADER_UPDATE_TIMESTAMP - len(header))
 		# Finally we add the size. This will be a size of 1 if it is a delete command, and the size of the
 		# file in bytes otherwise
 		if queue_manager.get_status_code(change_identifier[1]) == "deleted":
-			header += "1"
+			header += "1".encode("utf8")
 		else:
-			header += str(os.path.getsize("./data/"+change_idenifier[0]))
+			header += str(os.path.getsize("./data/"+change_identifier[0])).encode("utf8")
 		
-		header += b" " * (HEADER_FILE_NAME_SIZE+HEADER_UPDATE_TYPE_SIZE+HEADER_UPDATE_TIMESTAMP+HEADER_FILE_SIZE - len(header))
+		header += b' ' * (HEADER_FILE_NAME_SIZE+HEADER_UPDATE_TYPE_SIZE+HEADER_UPDATE_TIMESTAMP+HEADER_FILE_SIZE - len(header))
 
 		# Once we have gotten the header, we need to get the contents of the file into a variable and encode it
 
-		file_data = "0"
+		file_data = "0".encode("utf8")
 		# If we are sending a new file or an updated file, we want to get the file's data and turn that in to
 		# the file_data variable
-		if queue_manager.get_status_code(change_identifier[1]) not "deleted":
-			with open(change_idenifier[0], "rb") as f:
+		
+		if queue_manager.get_status_code(change_identifier[1]) != "deleted":
+			with open("./data/"+change_identifier[0], "rb") as f:
 				file_data = f.read()
+		
 
 
 		# At this point, all that's left is that we send the header and then the other message
-		sending_socket.send(header.encode("utf8"))
-		sending_socket.send(file_data.encode("utf8"))
+		print("about to send")
+		print(header)
+
+		sending_socket.sendall(header)
+		print("sent header")
+		sending_socket.sendall(file_data)
+		print("sent file data")
+		queue_manager.to_be_sent_queue.pop(0)
 
 	queue_manager.deregister_sender()

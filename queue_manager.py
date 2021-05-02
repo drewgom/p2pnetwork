@@ -1,3 +1,6 @@
+import os
+from time import sleep
+
 # This file stores all the shared data needed for updating data
 # across the network.
 
@@ -12,11 +15,11 @@
 # in the message if we have it locally.
 
 def get_status_code(status):
-	if status = "new":
+	if status == "new":
 		return "0"
-	elif status = "update":
+	elif status == "update":
 		return "1"
-	elif status = "deleted":
+	elif status == "deleted":
 		return "2"
 	else:
 		return "3"
@@ -38,7 +41,7 @@ def get_local_change_identifier(item, status):
 		# Since we cannot get the last modified 
 		return (item, status, time())
 	else:
-		return (item, status, path.getmtime("./data/"+item))
+		return (item, status, os.path.getmtime("./data/"+item))
 
 
 # The queue of changes is where we'll store the changes that we have detected to the 
@@ -99,3 +102,30 @@ def signal_semaphore():
 
 mutex_locks = [False, False]
 mutex_turn = 1
+
+
+
+
+
+def request_executer():
+	while True:
+		# If there are messages that we have received that we still need to execute, they get handled
+		# after this if statement
+		if len(received_queue) > 0:
+			next_message = received_queue.pop(0)
+			next_message_change_identifier = next_message[0]
+			file_contents = next_message[1]
+			# If the message is not a delete message, then simply write the contents of the file
+			testing_path = "text2.txt"
+			print("would operate on " + next_message_change_identifier[0] + ", instead on " + testing_path)
+			if next_message_change_identifier[1] == "deleted":
+				os.remove("./data/"+next_message_change_identifier[0])
+			else:
+				with open("./data/"+next_message_change_identifier[0], "wb") as f:
+					f.write(file_contents)
+			
+
+
+			# After the change is executed, we add the change identifier to the set of known changes
+			known_changes.add(get_local_change_identifier(next_message_change_identifier[0],next_message_change_identifier[1]))
+		sleep(1)

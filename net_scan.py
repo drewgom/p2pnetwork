@@ -38,7 +38,6 @@ def scan_network():
 # machines have that port open
 def scan_ports(ip_arr, port):
 	ips_with_open_port = []
-
 	for ip_add in ip_arr:
 		# Here, we used connect_ex because it is a nonblocking call that simply tests to see
 		# if the connection can be made. That is perfect for this case.
