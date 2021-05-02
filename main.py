@@ -13,7 +13,10 @@ def main():
 		print("starting port scan")
 		result = net_scan.scan_ports(ip_arr, p2p_conn.DISCOVERY_PORT)
 		print("port scan completed")
+		change_detector_thread = threading.Thread(target=folder_monitor.detect_change, args=())
+		change_detector_thread.start()
 		for res in result:
+			print("starting sender")
 			p2p_conn.start_sender(res)
 	elif sys.argv[1] == 'receiver':
 		discovery_thread = threading.Thread(target=p2p_conn.disovery_receiver, args=(sys.argv[2]))
@@ -31,6 +34,5 @@ def main():
 
 if __name__ == "__main__":
     #folder_monitor.verify_directory()
-    #folder_monitor.detect_change()
     #p2p_conn.send_change()
     main()

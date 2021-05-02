@@ -81,7 +81,7 @@ def detect_change():
 		# the data off
 
 		for id in files_who_have_changed_state:
-			queue_manager.queue_of_changes.append(id)
+			queue_manager.to_be_sent_queue.append(id)
 
 		print("FILES WHO HAVE CHANGED STATE")
 		print(files_who_have_changed_state)
@@ -98,7 +98,7 @@ def detect_change():
 		files_who_have_changed_state.clear()
 
 
-		print("QUEUE OF CHANGES")
-		print(queue_manager.queue_of_changes)
+		print("QUEUE OF CHANGES FROM FOLDER MONITOR")
+		print(queue_manager.to_be_sent_queue)
 
 		sleep(TIME_INTERVAL_BETWEEN_SCANS)

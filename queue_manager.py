@@ -1,5 +1,5 @@
 import os
-from time import sleep
+from time import sleep, time
 
 # This file stores all the shared data needed for updating data
 # across the network.
@@ -125,8 +125,6 @@ def request_executer():
 			next_message_change_identifier = next_message[0]
 			file_contents = next_message[1]
 			# If the message is not a delete message, then simply write the contents of the file
-			testing_path = "text2.txt"
-			print("would operate on " + next_message_change_identifier[0] + ", instead on " + testing_path)
 			if next_message_change_identifier[1] == "deleted":
 				os.remove("./data/"+next_message_change_identifier[0])
 			else:

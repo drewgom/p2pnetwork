@@ -123,14 +123,16 @@ def send_change(sending_socket):
 	# If a sender runs and the top of the queue is still the previous message that was sent by this sender,
 	# then we know that we should essentially busy wait
 	previous_message = None
-	queue_manager.to_be_sent_queue.append(('text1.txt', 'new', 1234.5678))
 	queue_manager.register_sender()
 
 	currently_connected = True
 	while currently_connected:
 		# If the queue is empty or if we already sent the message that's at the top of the queue, we simply wait
+		print("QUEUE OF CHANGES FROM SENDER")
+		print(queue_manager.to_be_sent_queue)
+
 		while len(queue_manager.to_be_sent_queue) == 0 or previous_message == queue_manager.to_be_sent_queue[0]:
-			time.sleep(10)
+			time.sleep(2)
 
 		# Once we have finished sending the message, we'll signal that we are done to the semaphore.
 		change_identifier = queue_manager.to_be_sent_queue[0]
@@ -146,7 +148,7 @@ def send_change(sending_socket):
 		header += b' ' * (HEADER_FILE_NAME_SIZE+HEADER_UPDATE_TYPE_SIZE+HEADER_UPDATE_TIMESTAMP - len(header))
 		# Finally we add the size. This will be a size of 1 if it is a delete command, and the size of the
 		# file in bytes otherwise
-		if queue_manager.get_status_code(change_identifier[1]) == "deleted":
+		if change_identifier[1] == "deleted":
 			header += "1".encode("utf8")
 		else:
 			header += str(os.path.getsize("./data/"+change_identifier[0])).encode("utf8")
@@ -159,7 +161,7 @@ def send_change(sending_socket):
 		# If we are sending a new file or an updated file, we want to get the file's data and turn that in to
 		# the file_data variable
 		
-		if queue_manager.get_status_code(change_identifier[1]) != "deleted":
+		if change_identifier[1] != "deleted":
 			with open("./data/"+change_identifier[0], "rb") as f:
 				file_data = f.read()
 		
