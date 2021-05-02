@@ -11,15 +11,43 @@
 # If a delete update has been sent, then we simply delete the file named
 # in the message if we have it locally.
 
-# For any update or new file, we want to 
+def get_status_code(status):
+	if status = "new":
+		return "0"
+	elif status = "update":
+		return "1"
+	elif status = "deleted":
+		return "2"
+	else:
+		return "3"
+
+def get_external_change_identifier(item, status_code, time):
+	status = ""
+	if status_code == "0":
+		status = "new"
+	elif status_code == "1":
+		status = "update"
+	elif status_code == "2":
+		status = "deleted"
+
+	return (item.strip(), status, float(time))
 
 
-NUM_OF_PEERS = 0
+def get_local_change_identifier(item, status):
+	if status == "deleted":
+		# Since we cannot get the last modified 
+		return (item, status, time())
+	else:
+		return (item, status, path.getmtime("./data/"+item))
+
 
 # The queue of changes is where we'll store the changes that we have detected to the 
 # p2pnetwork/data folder. All of these change's contents will be packaged and sent to all the other
 # peers
-queue_of_changes = []
+to_be_sent_queue = []
+
+# Whenever we recieve a change, we store it here
+received_queue = []
 
 # Whenever we update the p2pnetwork/data folder via a recieved update, we will detect
 # the change in the thread that monitors the folder. To prevent these changes being resent
@@ -28,6 +56,29 @@ queue_of_changes = []
 # in the set of known changes.
 known_changes = set()
 
+
+NUM_OF_PEERS = 0
+
+# Here we have a semaphore that we use to ensure that each sender has sent a message before we 
+# remove that message from the top of the queue
+sender_semaphore = 0
+
+def register_sender():
+	global NUM_OF_PEERS
+	NUM_OF_PEERS += 1
+
+
+def deregsiter_sender():
+	global NUM_OF_PEERS
+	NUM_OF_PEERS -= 1
+
+def signal_semaphore():
+	sender_semaphore -= 1
+
+	if sender_semaphore == 0:
+		global to_be_sent_queue
+		to_be_sent_queue.pop()
+		sender_semaphore = NUM_OF_PEERS
 
 # We want to have mutual exclusion between sending and receiving. To explain,
 # think of the following example:

@@ -60,12 +60,12 @@ def detect_change():
 			# is new, thus an update must be sent
 
 			if item not in previous_metadata.keys():
-				files_who_have_changed_state.append(get_change_identifier(item, "new"))
+				files_who_have_changed_state.append(queue_manager.get_local_change_identifier(item, "new"))
 			# If the new file was in the previous metadata, but the file's hash changed,
 			# then the contents of the file have changed. If that's the case, then we need
 			# to also need to report that that file has changed
 			elif previous_metadata[item] != item_hash:
-				files_who_have_changed_state.append(get_change_identifier(item, "update"))
+				files_who_have_changed_state.append(queue_manager.get_local_change_identifier(item, "update"))
 
 
 		# Once we have iterated over every file in the directory and put it in to
@@ -75,7 +75,7 @@ def detect_change():
 		deleted_files = previous_metadata.keys() - next_metadata.keys()
 
 		for item in deleted_files:
-			files_who_have_changed_state.append(get_change_identifier(item, "deleted"))
+			files_who_have_changed_state.append(queue_manager.get_local_change_identifier(item, "deleted"))
 
 		# Once we have all the changes, we need to that data off to the queue in order to send
 		# the data off
@@ -102,12 +102,3 @@ def detect_change():
 		print(queue_manager.queue_of_changes)
 
 		sleep(TIME_INTERVAL_BETWEEN_SCANS)
-
-# Since we get this same identifier in other parts of, I figured it would be best to have
-# a standardization of this
-def get_change_identifier(item, status):
-	if status == "deleted":
-		# Since we cannot get the last modified 
-		return (item, status, time())
-	else:
-		return (item, status, path.getmtime("./data/"+item))

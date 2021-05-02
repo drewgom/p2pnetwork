@@ -25,5 +25,6 @@ def main():
 
 
 if __name__ == "__main__":
-    folder_monitor.verify_directory()
-    folder_monitor.detect_change()
+    #folder_monitor.verify_directory()
+    #folder_monitor.detect_change()
+    p2p_conn.send_change()
