@@ -8,7 +8,7 @@ def main():
 	if sys.argv[1] == 'sender':
 		# ip_arr = net_scan.scan_network()
 		ip_arr = []
-		ip_arr.append("192.168.1.7")
+		ip_arr.append("192.168.1.98")
 		ip_arr.sort()
 		print("starting port scan")
 		result = net_scan.scan_ports(ip_arr, p2p_conn.DISCOVERY_PORT)

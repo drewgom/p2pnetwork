@@ -99,19 +99,28 @@ def signal_semaphore():
 # is fairly simple and works in this case because there are only two logical entities (the senders
 # and the receivers) that need mutual exclusion on the shared data (the /p2pnetwork/data folder)
 
-
-mutex_locks = [False, False]
-mutex_turn = 1
-
-
-
+# The first flag will represent the receiver threads, and the second flag will represent the
+# sender threads
+flags = [False, False]
+mutex_turn = 0
 
 
 def request_executer():
+	global flags
+	global mutex_turn
+
 	while True:
-		# If there are messages that we have received that we still need to execute, they get handled
-		# after this if statement
+		# To implement Peterson's Algorithm for mutual exlcusion, we first need to set our flag to
+		# true and give the turn to the sending threads
 		if len(received_queue) > 0:
+			flags[0] = True
+			mutex_turn = 1
+			while flags[1] == True and mutex_turn == 1:
+				sleep(1)
+
+		while len(received_queue) > 0:
+			# If there are messages that we have received that we still need to execute, they get handled
+			# after this if statement
 			next_message = received_queue.pop(0)
 			next_message_change_identifier = next_message[0]
 			file_contents = next_message[1]
@@ -123,9 +132,11 @@ def request_executer():
 			else:
 				with open("./data/"+next_message_change_identifier[0], "wb") as f:
 					f.write(file_contents)
-			
-
 
 			# After the change is executed, we add the change identifier to the set of known changes
 			known_changes.add(get_local_change_identifier(next_message_change_identifier[0],next_message_change_identifier[1]))
+
+		flags[0] = False
+
 		sleep(1)
+
