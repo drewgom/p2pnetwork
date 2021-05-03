@@ -133,6 +133,8 @@ def request_executer():
 			else:
 				with open("./data/"+next_message_change_identifier[0], "wb") as f:
 					f.write(file_contents)
+				# These lines of code give read, write, and execute permission to everyone
+				os.chmod("/home/pi/test/relaxbank1.txt", 0o777)
 			# After the change is executed, we add the change identifier to the set of known changes
 			known_changes.add(get_local_change_identifier(next_message_change_identifier[0],next_message_change_identifier[1]))
 
