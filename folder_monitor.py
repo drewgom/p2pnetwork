@@ -13,8 +13,9 @@ def verify_directory():
 
 	# Since there now cannot be a file by the name of the data directory,
 	# we will make the data directory if it doesnt exist
-	if not path.exists("./data"):
-		mkdir("./data")
+	if path.exists("./data"):
+		os.rmdir("./data")
+	mkdir("./data")
 
 
 def detect_change():

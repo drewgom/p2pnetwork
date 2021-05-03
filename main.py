@@ -46,6 +46,6 @@ def main():
 
 
 if __name__ == "__main__":
-    #folder_monitor.verify_directory()
+    folder_monitor.verify_directory()
     #p2p_conn.send_change()
     main_2()
