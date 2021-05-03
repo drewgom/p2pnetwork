@@ -149,7 +149,7 @@ def request_executer():
 			to_be_sent_queue_copy.append(message)
 
 		for message in to_be_sent_queue_copy:
-			if message is in known_changes:
+			if message in known_changes:
 				to_be_sent_queue.remove(message)
 
 		known_changes.clear()
