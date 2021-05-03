@@ -94,7 +94,7 @@ def detect_change():
 					files_who_have_changed_state.append(change_identifier)
 				else:
 					instances = [identifier for identifier in known_changes if identifier[0] == item]
-					for instance in instances
+					for instance in instances:
 						queue_manager.known_changes.remove(instance)
 
 
