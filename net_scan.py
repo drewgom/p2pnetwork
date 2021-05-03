@@ -58,6 +58,7 @@ def find_peers(operating_system):
 	already_connected_peers.append(p2p_conn.get_ip(operating_system))
 	while True:
 		ip_arr = []
+		# ip_arr = scan_network()
 		if operating_system == 0:
 			ip_arr.append("192.168.1.98")
 		if operating_system == 0:
@@ -65,12 +66,13 @@ def find_peers(operating_system):
 		ip_arr.sort()
 		print("starting port scan")
 		result = scan_ports(ip_arr, p2p_conn.DISCOVERY_PORT)
-		print("port scan completed")
+		print("port scan completed - about to publish")
 
 		for res in result:
+			print(res)
 			if res not in already_connected_peers:
 				print("starting sender")
 				p2p_conn.start_sender(res)
 				already_connected_peers.append(res)
 
-		sleep(15)
+		sleep(5)
