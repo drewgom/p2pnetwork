@@ -5,7 +5,8 @@ import sys
 import threading
 
 def main_2():
-	discovery_thread = threading.Thread(target=p2p_conn.disovery_receiver, args=(sys.argv[1]))
+	print(sys.argv[1])
+	discovery_thread = threading.Thread(target=p2p_conn.discovery_receiver, args=(sys.argv[1]))
 	discovery_thread.start()
 	
 	start_receiver_thread = threading.Thread(target=p2p_conn.start_receiver, args=(sys.argv[1]))

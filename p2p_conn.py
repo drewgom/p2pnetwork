@@ -47,7 +47,7 @@ def get_ip(operating_system):
 
 	return ip
 
-def disovery_receiver(operating_system):
+def discovery_receiver(operating_system):
 	CURRENT_NODE_IP = get_ip(operating_system)
 	discovery_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	discovery_socket.bind((CURRENT_NODE_IP, DISCOVERY_PORT))
