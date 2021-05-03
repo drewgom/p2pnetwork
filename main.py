@@ -4,6 +4,23 @@ import folder_monitor
 import sys
 import threading
 
+def main_2():
+	discovery_thread = threading.Thread(target=p2p_conn.disovery_receiver, args=(sys.argv[1]))
+	discovery_thread.start()
+	p2p_conn.start_receiver(sys.argv[1])
+
+	ip_arr = net_scan.scan_network()
+	ip_arr.sort()
+	print("starting port scan")
+	result = net_scan.scan_ports(ip_arr, p2p_conn.DISCOVERY_PORT)
+	print("port scan completed")
+	change_detector_thread = threading.Thread(target=folder_monitor.detect_change, args=())
+	change_detector_thread.start()
+
+	for res in result:
+		print("starting sender")
+		p2p_conn.start_sender(res)
+
 def main():
 	if sys.argv[1] == 'sender':
 		# ip_arr = net_scan.scan_network()
@@ -29,7 +46,6 @@ def main():
 			print(ip)
 	else:
 		print('Unknown argument')
-
 
 
 if __name__ == "__main__":

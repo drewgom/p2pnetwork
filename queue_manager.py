@@ -68,6 +68,7 @@ sender_semaphore = 0
 
 def register_sender():
 	global NUM_OF_PEERS
+	global sender_semaphore
 	NUM_OF_PEERS += 1
 	sender_semaphore += 1
 
@@ -77,6 +78,7 @@ def deregsiter_sender():
 	NUM_OF_PEERS -= 1
 
 def signal_semaphore():
+	global sender_semaphore
 	sender_semaphore -= 1
 
 	if sender_semaphore == 0:
