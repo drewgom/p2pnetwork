@@ -79,7 +79,7 @@ def detect_change():
 		deleted_files = previous_metadata.keys() - next_metadata.keys()
 		for item in deleted_files:
 				change_identifier = queue_manager.get_local_change_identifier(item, "deleted")
-				known_changes_list = [(element[0], element[2]) for element in known_changes]
+				known_changes_list = [(element[0], element[2]) for element in queue_manager.known_changes]
 				known_changes_list_of_names = [element[0] for element in known_changes_list]
 
 				if item not in known_changes_list_of_names:

@@ -87,7 +87,7 @@ def start_sender(sender_ip):
 	sender_socket.connect((sender_ip, REC_PORT))
 	# Here, we start a thread that will send all the messages for the communication
 	# between the two threads
-	send_change_thread = threading.Thread(target=send_change, args=(sender_socket))
+	send_change_thread = threading.Thread(target=send_change, args=(sender_socket,))
 	send_change_thread.start()
 
 
