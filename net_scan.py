@@ -1,5 +1,7 @@
 from scapy.all import srp, ARP, Ether
 import socket
+import p2p_conn
+from time import sleep
 
 # In order for our program to work, we need to have a way to find what
 # other machines on the local network are also running our file sharing
@@ -49,3 +51,22 @@ def scan_ports(ip_arr, port):
 			ips_with_open_port.append(ip_add)
 
 	return ips_with_open_port
+
+
+def find_peers(operating_system):
+	already_connected_peers = []
+	already_connected_peers.append(p2p_conn.get_ip(operating_system))
+	while True:
+		ip_arr = scan_network()
+		ip_arr.sort()
+		print("starting port scan")
+		result = scan_ports(ip_arr, p2p_conn.DISCOVERY_PORT)
+		print("port scan completed")
+
+		for res in result:
+			if res not in already_connected_peers:
+				print("starting sender")
+				p2p_conn.start_sender(res)
+				already_connected_peers.append(res)
+
+		sleep(10)

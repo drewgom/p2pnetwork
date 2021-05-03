@@ -32,19 +32,23 @@ HEADER_FILE_SIZE = 16
 
 HEADER_SIZE = HEADER_FILE_NAME_SIZE + HEADER_UPDATE_TYPE_SIZE + HEADER_UPDATE_TIMESTAMP + HEADER_FILE_SIZE
 
-def disovery_receiver(operating_system):
-	# Here we create a socket that will use IPv4 for network communcation, and TCP for transport
-	# layer communication
+def get_ip(operating_system):
+	ip = ""
 	if operating_system == "0":
 		# If this option is set, then we are using macOS
 		# CURRENT_NODE_IP = socket.gethostbyname(socket.getfqdn())
-		CURRENT_NODE_IP = "192.168.1.7"
+		ip = "192.168.1.7"
 	elif operating_system == "1":
 		# If this option is set, then we are using a Raspbian machine
-		CURRENT_NODE_IP = socket.gethostbyname(socket.gethostname() + ".local")
+		ip = socket.gethostbyname(socket.gethostname() + ".local")
 	else:
 		print("Could not resolve OS")
 		exit()
+
+	return ip
+
+def disovery_receiver(operating_system):
+	CURRENT_NODE_IP = get_ip(operating_system)
 	discovery_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	discovery_socket.bind((CURRENT_NODE_IP, DISCOVERY_PORT))
 	discovery_socket.listen()
@@ -54,18 +58,7 @@ def disovery_receiver(operating_system):
 	
 
 def start_receiver(operating_system):
-	# Here we create a socket that will use IPv4 for network communcation, and TCP for transport
-	# layer communication
-	if operating_system == "0":
-		# If this option is set, then we are using macOS
-		# CURRENT_NODE_IP = socket.gethostbyname(socket.getfqdn())
-		CURRENT_NODE_IP = "192.168.1.7"
-	elif operating_system == "1":
-		# If this option is set, then we are using a Raspbian machine
-		CURRENT_NODE_IP = socket.gethostbyname(socket.gethostname() + ".local")
-	else:
-		print("Could not resolve OS")
-		exit()
+	CURRENT_NODE_IP = get_ip(operating_system)
 	reciever_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	reciever_socket.bind((CURRENT_NODE_IP, REC_PORT))
 	reciever_socket.listen()
@@ -76,8 +69,6 @@ def start_receiver(operating_system):
 		connection, address = reciever_socket.accept()
 		# Here, we start a thread that will receive all the messages for the communication
 		# between the two threads
-		receive_change_thread = threading.Thread(target=recieve_change, args=(connection, address))
-		receive_change_thread.start()
 
 
 def start_sender(sender_ip):
