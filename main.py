@@ -12,7 +12,7 @@ def main_2():
 	start_receiver_thread = threading.Thread(target=p2p_conn.start_receiver, args=(sys.argv[1]))
 	start_receiver_thread.start()
 
-	connect_to_peers_thread = threading.Thread(target=net_scan.find_peers, args=(sys.argv[1]))
+	connect_to_peers_thread = threading.Thread(target=net_scan.find_peers, args=(sys.argv[1],sys.argv[2]))
 	connect_to_peers_thread.start()
 
 	change_detector_thread = threading.Thread(target=folder_monitor.detect_change, args=())
