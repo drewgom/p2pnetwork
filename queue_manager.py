@@ -116,6 +116,7 @@ def request_executer():
 	while True:
 		# To implement Peterson's Algorithm for mutual exlcusion, we first need to set our flag to
 		# true and give the turn to the sending threads
+		print(received_queue)
 		if len(received_queue) > 0:
 			flags[0] = True
 			mutex_turn = 1
@@ -156,7 +157,9 @@ def request_executer():
 		for message in to_be_sent_queue_copy:
 			if message in known_changes:
 				to_be_sent_queue.remove(message)
+				known_changes.remove(message)
 
+		print("about to give up control")
 		flags[0] = False
 
 		sleep(1)
