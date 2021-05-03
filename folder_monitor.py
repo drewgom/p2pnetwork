@@ -36,40 +36,41 @@ def detect_change():
 
 	while True:
 		for item in listdir("./data"):
-			# We know that every item that we iterate over needs to be stored in the next
-			# metadata - because if we see it currently then by definition it is
-			# part of the current state. So, we start by adding the file's name and
-			# hash to the next metadata
+			if not item.startswith("."):
+				# We know that every item that we iterate over needs to be stored in the next
+				# metadata - because if we see it currently then by definition it is
+				# part of the current state. So, we start by adding the file's name and
+				# hash to the next metadata
 
-			md5_hasher = md5()
-			with open("./data/"+item, 'rb') as curr_file:
-				while True:
-					data = curr_file.read(1024)
-					if not data:
-						break
-					md5_hasher.update(data)
+				md5_hasher = md5()
+				with open("./data/"+item, 'rb') as curr_file:
+					while True:
+						data = curr_file.read(1024)
+						if not data:
+							break
+						md5_hasher.update(data)
 
-			item_hash = md5_hasher.hexdigest()
-			next_metadata[item] = item_hash
+				item_hash = md5_hasher.hexdigest()
+				next_metadata[item] = item_hash
 
 
-			# not in previous? okay, then send
-			# in previous? then okay, is the hash different? then send
+				# not in previous? okay, then send
+				# in previous? then okay, is the hash different? then send
 
-			# If a file was not in the previous metadata, then we know that this file
-			# is new, thus an update must be sent
+				# If a file was not in the previous metadata, then we know that this file
+				# is new, thus an update must be sent
 
-			if item not in previous_metadata.keys():
-				change_identifier = queue_manager.get_local_change_identifier(item, "new")
-				if change_identifier not in queue_manager.known_changes:
-					files_who_have_changed_state.append(change_identifier)
-			# If the new file was in the previous metadata, but the file's hash changed,
-			# then the contents of the file have changed. If that's the case, then we need
-			# to also need to report that that file has changed
-			elif previous_metadata[item] != item_hash:
-				change_identifier = queue_manager.get_local_change_identifier(item, "new")
-				if change_identifier not in queue_manager.known_changes:
-					files_who_have_changed_state.append(change_identifier)
+				if item not in previous_metadata.keys():
+					change_identifier = queue_manager.get_local_change_identifier(item, "new")
+					if change_identifier not in queue_manager.known_changes:
+						files_who_have_changed_state.append(change_identifier)
+				# If the new file was in the previous metadata, but the file's hash changed,
+				# then the contents of the file have changed. If that's the case, then we need
+				# to also need to report that that file has changed
+				elif previous_metadata[item] != item_hash:
+					change_identifier = queue_manager.get_local_change_identifier(item, "new")
+					if change_identifier not in queue_manager.known_changes:
+						files_who_have_changed_state.append(change_identifier)
 
 
 		# Once we have iterated over every file in the directory and put it in to
