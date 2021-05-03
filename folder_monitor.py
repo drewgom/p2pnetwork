@@ -67,6 +67,8 @@ def detect_change():
 					change_identifier = queue_manager.get_local_change_identifier(item, "new")
 					if change_identifier not in queue_manager.known_changes:
 						files_who_have_changed_state.append(change_identifier)
+					else:
+						known_changes.remove(change_identifier)
 				# If the new file was in the previous metadata, but the file's hash changed,
 				# then the contents of the file have changed. If that's the case, then we need
 				# to also need to report that that file has changed
@@ -74,6 +76,8 @@ def detect_change():
 					change_identifier = queue_manager.get_local_change_identifier(item, "update")
 					if change_identifier not in queue_manager.known_changes:
 						files_who_have_changed_state.append(change_identifier)
+					else:
+						known_changes.remove(change_identifier)
 
 
 		# Once we have iterated over every file in the directory and put it in to
@@ -88,6 +92,8 @@ def detect_change():
 
 				if item not in known_changes_list_of_names:
 					files_who_have_changed_state.append(change_identifier)
+				else:
+					known_changes.remove(change_identifier)
 
 
 		# Once we have all the changes, we need to that data off to the queue in order to send
