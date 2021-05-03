@@ -69,6 +69,7 @@ def start_receiver(operating_system):
 		connection, address = reciever_socket.accept()
 		# Here, we start a thread that will receive all the messages for the communication
 		# between the two threads
+		recieve_change(connection, address)
 
 
 def start_sender(sender_ip):
@@ -78,7 +79,7 @@ def start_sender(sender_ip):
 	sender_socket.connect((sender_ip, REC_PORT))
 	# Here, we start a thread that will send all the messages for the communication
 	# between the two threads
-	print("CONNECTION MADE ON " + sender_ip + ", PORT " + REC_PORT)
+	print("CONNECTION MADE ON " + str(sender_ip) + ", PORT " + str(REC_PORT))
 	send_change_thread = threading.Thread(target=send_change, args=(sender_socket,))
 	send_change_thread.start()
 
