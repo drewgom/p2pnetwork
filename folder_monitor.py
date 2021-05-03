@@ -68,7 +68,7 @@ def detect_change():
 				# then the contents of the file have changed. If that's the case, then we need
 				# to also need to report that that file has changed
 				elif previous_metadata[item] != item_hash:
-					change_identifier = queue_manager.get_local_change_identifier(item, "new")
+					change_identifier = queue_manager.get_local_change_identifier(item, "update")
 					if change_identifier not in queue_manager.known_changes:
 						files_who_have_changed_state.append(change_identifier)
 

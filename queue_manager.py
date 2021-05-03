@@ -111,6 +111,7 @@ mutex_turn = 0
 def request_executer():
 	global flags
 	global mutex_turn
+	global received_queue
 
 	while True:
 		# To implement Peterson's Algorithm for mutual exlcusion, we first need to set our flag to
@@ -165,6 +166,7 @@ def request_executer():
 def to_be_sent_manager():
 	global flags
 	global mutex_turn
+	global to_be_sent_queue
 
 	while True:
 		# To implement Peterson's Algorithm for mutual exlcusion, we first need to set our flag to
