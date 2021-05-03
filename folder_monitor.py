@@ -114,4 +114,7 @@ def detect_change():
 		print("QUEUE OF CHANGES FROM FOLDER MONITOR")
 		print(queue_manager.to_be_sent_queue)
 
+		print("KNOWN CHANGES")
+		print(queue_manager.known_changes)
+
 		sleep(TIME_INTERVAL_BETWEEN_SCANS)
