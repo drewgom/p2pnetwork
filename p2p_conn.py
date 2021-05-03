@@ -81,6 +81,8 @@ def start_receiver(operating_system):
 
 def start_sender(sender_ip):
 	sender_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	to_be_sent_manager_thread = threading.Thread(target=queue_manager.to_be_sent_manager, args=())
+	to_be_sent_manager_thread.start()
 	sender_socket.connect((sender_ip, REC_PORT))
 	# Here, we start a thread that will send all the messages for the communication
 	# between the two threads
@@ -175,6 +177,9 @@ def send_change(sending_socket):
 		print("sent header")
 		sending_socket.sendall(file_data)
 		print("sent file data")
-		queue_manager.to_be_sent_queue.pop(0)
+
+		#Once we have sent the messages, we will signal that we have sent the message, and that
+		previous_message = change_identifier
+		queue_manager.signal_semaphore()
 
 	queue_manager.deregister_sender()

@@ -60,12 +60,16 @@ def detect_change():
 			# is new, thus an update must be sent
 
 			if item not in previous_metadata.keys():
-				files_who_have_changed_state.append(queue_manager.get_local_change_identifier(item, "new"))
+				change_identifier = queue_manager.get_local_change_identifier(item, "new")
+				if change_identifier not in queue_manager.known_changes:
+					files_who_have_changed_state.append(change_identifier)
 			# If the new file was in the previous metadata, but the file's hash changed,
 			# then the contents of the file have changed. If that's the case, then we need
 			# to also need to report that that file has changed
 			elif previous_metadata[item] != item_hash:
-				files_who_have_changed_state.append(queue_manager.get_local_change_identifier(item, "update"))
+				change_identifier = queue_manager.get_local_change_identifier(item, "new")
+				if change_identifier not in queue_manager.known_changes:
+					files_who_have_changed_state.append(change_identifier)
 
 
 		# Once we have iterated over every file in the directory and put it in to
@@ -73,9 +77,14 @@ def detect_change():
 		# that are not in the current one. Those are the files that have been deleted.
 
 		deleted_files = previous_metadata.keys() - next_metadata.keys()
-
 		for item in deleted_files:
-			files_who_have_changed_state.append(queue_manager.get_local_change_identifier(item, "deleted"))
+				change_identifier = queue_manager.get_local_change_identifier(item, "deleted")
+				known_changes_list = [(element[0], element[2]) for element in known_changes]
+				known_changes_list_of_names = [element[0] for element in known_changes_list]
+
+				if item not in known_changes_list_of_names:
+					files_who_have_changed_state.append(change_identifier)
+
 
 		# Once we have all the changes, we need to that data off to the queue in order to send
 		# the data off

@@ -69,6 +69,7 @@ sender_semaphore = 0
 def register_sender():
 	global NUM_OF_PEERS
 	NUM_OF_PEERS += 1
+	sender_semaphore += 1
 
 
 def deregsiter_sender():
@@ -80,7 +81,7 @@ def signal_semaphore():
 
 	if sender_semaphore == 0:
 		global to_be_sent_queue
-		to_be_sent_queue.pop()
+		to_be_sent_queue.pop(0)
 		sender_semaphore = NUM_OF_PEERS
 
 # We want to have mutual exclusion between sending and receiving. To explain,
@@ -130,11 +131,50 @@ def request_executer():
 			else:
 				with open("./data/"+next_message_change_identifier[0], "wb") as f:
 					f.write(file_contents)
-
 			# After the change is executed, we add the change identifier to the set of known changes
 			known_changes.add(get_local_change_identifier(next_message_change_identifier[0],next_message_change_identifier[1]))
 
+		# Since we know that a known change can only happen while the request_executer has mutex control,
+		# we know that it is okay to simply wait until the end of request_executer's turn to clear out all 
+		# known changes from the list of changes to be sent.
+
+		# At this point in the code, for each known change, there are a few states it can be in:
+		# 1. The known change has been detected by the change detector
+		# 2. A known change has not been detected by the change detector
+
+		# This will solve for all known changes in scenario 2. If scenario 1 occurs, then it
+		# it will be handled by the change detector when it attempts to add the change
+		to_be_sent_queue_copy = []
+		for message in to_be_sent_queue:
+			to_be_sent_queue_copy.append(message)
+
+		for message in to_be_sent_queue_copy:
+			if message is in known_changes:
+				to_be_sent_queue.remove(message)
+
+		known_changes.clear()
 		flags[0] = False
+
+		sleep(1)
+
+
+def to_be_sent_manager():
+	global flags
+	global mutex_turn
+
+	while True:
+		# To implement Peterson's Algorithm for mutual exlcusion, we first need to set our flag to
+		# true and give the turn to the sending threads
+		if len(to_be_sent_queue) > 0:
+			flags[1] = True
+			mutex_turn = 0
+			while flags[0] == True and mutex_turn == 0:
+				sleep(1)
+
+		while len(to_be_sent_queue) > 0:
+			sleep(1)
+
+		flags[1] = False
 
 		sleep(1)
 
