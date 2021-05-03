@@ -1,4 +1,5 @@
-from os import path, mkdir, remove, listdir, rmdir
+from os import path, mkdir, remove, listdir, rmdir, chmod
+import shutil
 from hashlib import md5
 from time import time, sleep
 import queue_manager
@@ -14,8 +15,9 @@ def verify_directory():
 	# Since there now cannot be a file by the name of the data directory,
 	# we will make the data directory if it doesnt exist
 	if path.exists("./data"):
-		rmdir("./data")
+		shutil.rmtree("./data")
 	mkdir("./data")
+	chmod("./data/", 0o777)
 
 
 def detect_change():
