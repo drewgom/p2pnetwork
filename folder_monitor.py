@@ -93,7 +93,9 @@ def detect_change():
 				if item not in known_changes_list_of_names:
 					files_who_have_changed_state.append(change_identifier)
 				else:
-					queue_manager.known_changes.remove(change_identifier)
+					instances = [identifier for identifier in known_changes if identifier[0] == item]
+					for instance in instances
+						queue_manager.known_changes.remove(instance)
 
 
 		# Once we have all the changes, we need to that data off to the queue in order to send
