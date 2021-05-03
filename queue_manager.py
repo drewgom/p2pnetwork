@@ -157,7 +157,6 @@ def request_executer():
 			if message in known_changes:
 				to_be_sent_queue.remove(message)
 
-		known_changes.clear()
 		flags[0] = False
 
 		sleep(1)
