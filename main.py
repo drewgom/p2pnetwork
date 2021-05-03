@@ -4,7 +4,7 @@ import folder_monitor
 import sys
 import threading
 
-def main_2():
+def main():
 	print(sys.argv[1])
 	discovery_thread = threading.Thread(target=p2p_conn.discovery_receiver, args=(sys.argv[1]))
 	discovery_thread.start()
@@ -18,7 +18,8 @@ def main_2():
 	change_detector_thread = threading.Thread(target=folder_monitor.detect_change, args=())
 	change_detector_thread.start()
 
-def main():
+'''
+def main_2():
 	if sys.argv[1] == 'sender':
 		# ip_arr = net_scan.scan_network()
 		ip_arr = []
@@ -44,8 +45,11 @@ def main():
 	else:
 		print('Unknown argument')
 
+'''
+
+
 
 if __name__ == "__main__":
     folder_monitor.verify_directory()
     #p2p_conn.send_change()
-    main_2()
+    main()

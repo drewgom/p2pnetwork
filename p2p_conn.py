@@ -37,7 +37,7 @@ def get_ip(operating_system):
 	if operating_system == "0":
 		# If this option is set, then we are using macOS
 		# CURRENT_NODE_IP = socket.gethostbyname(socket.getfqdn())
-		ip = "192.168.1.7"
+		ip = socket.gethostbyname(socket.getfqdn())
 	elif operating_system == "1":
 		# If this option is set, then we are using a Raspbian machine
 		ip = socket.gethostbyname(socket.gethostname() + ".local")
