@@ -53,29 +53,28 @@ def scan_ports(ip_arr, port):
 	return ips_with_open_port
 
 
-def find_peers(operating_system):
+def find_peers(operating_system, test_mode):
 	already_connected_peers = []
 	already_connected_peers.append(p2p_conn.get_ip(operating_system))
 	while True:
 		ip_arr = []
-		# ip_arr = scan_network()
-		if operating_system == "0":
-			ip_arr.append("192.168.1.98")
-		if operating_system == "1":
-			ip_arr.append("192.168.1.7")
+		if test_mode == "0":
+			ip_arr = scan_network()
+		elif test_mode == "1":
+			if operating_system == "0":
+				ip_arr.append("192.168.1.98")
+			if operating_system == "1":
+				ip_arr.append("192.168.1.7")
 		ip_arr.sort()
 		print("known networks")
 		print(ip_arr)
 		print("starting port scan")
 		result = scan_ports(ip_arr, p2p_conn.DISCOVERY_PORT)
-		print("port scan completed - about to publish")
-		print("RESULTS")
-		print(result)
+		print("port scan completed")
 
 		for res in result:
 			print(res)
 			if res not in already_connected_peers:
-				print("starting sender")
 				p2p_conn.start_sender(res)
 				already_connected_peers.append(res)
 
